@@ -4,10 +4,9 @@
 # A client which can connect to a server and receive responses until an exit
 # signal is sent. 
 #
-# v0.03
+# v0.04
 
 import socket
-import select
 import curses
 from threading import Thread
 
@@ -21,7 +20,7 @@ begin_x = 0; begin_y = 2
 height = curses.LINES - 3
 width = curses.COLS - 1
 titleWin = curses.newwin(1, width, 0, 0)
-titleWin.addstr("basic-python-chatroom client v0.03 - by Mike White")
+titleWin.addstr("basic-python-chatroom client v0.04 - by Mike White")
 titleWin.refresh()
 chatWin = curses.newwin(height, width, begin_y, begin_x)
 typeWin = curses.newwin(1, width, curses.LINES - 1, 0)
@@ -29,14 +28,15 @@ typeWin = curses.newwin(1, width, curses.LINES - 1, 0)
 # default variables
 PORT = 5090
 HOST = "mike-zenbuntu"
+receiving = True
 
 def broadcast_receiver(serverSocket):
-    while (True):
-        serverSocket.settimeout(4)
+    while (receiving):
+        serverSocket.settimeout(30)
         try:
             chatOutput((serverSocket.recv(1024).decode()))
         except:
-            return
+            continue
 
 def onExit():
     stdscr.keypad(False)
@@ -45,19 +45,19 @@ def onExit():
 
 def chatOutput(outStr):
     chatWin.addstr(outStr + "\n")
-    #chatWin.clrtoeol()
     chatWin.refresh()
+    typeWin.refresh()
 
 def userInput(inStr):
     typeWin.addstr(inStr)
     typeWin.refresh()
     s = typeWin.getstr().decode()
-    typeWin.erase()
+    typeWin.clrtoeol()
     typeWin.refresh()
     return s
 
 def main():
-    global HOST, PORT
+    global HOST, PORT, receiving
     alias = userInput("Enter your alias: ")
     connected = False
     while (not connected):
@@ -75,9 +75,10 @@ def main():
     receiverThread = Thread(target = broadcast_receiver, args = (serverSocket, ))
     receiverThread.start()
     userin = ""
-    while (userin != "exit"):
-        userin = userInput(alias + "> ")
+    while (userin[-6:] != "exit()"):
+        userin = alias + "> " + userInput(alias + "> ")
         serverSocket.send(userin.encode())
+    receiving = False
     onExit()
     serverSocket.close()
 

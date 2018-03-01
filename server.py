@@ -4,7 +4,7 @@
 # A server app which allows clients to connect, receives messages and rebroadcasts those
 # messages to all connected clients.
 #
-# v0.03
+# v0.04
 
 import socket
 from threading import Thread
@@ -23,12 +23,13 @@ def broadcast_to_clients(message):
 def listen_to(client):
     while True:
         message = client.recv(1024)
-        print("Server> received message.")
-        print("Server>", message.decode())
-        if (message.decode() == "exit"):
+        decoded = message.decode()
+        print(decoded)
+        if (decoded[-6:] == "exit()"):
             print("Server> Client disconnected.")
             clients.remove(client)
-            return
+            name = "Server> " + decoded[0:decoded.find('>')] + " left the room."
+            message = name.encode()
         thread = Thread(target = broadcast_to_clients, args = (message, ))
         thread.start()
 
@@ -43,7 +44,7 @@ def accept_clients(serverSocket):
 
 def main():
     print('\033[H\033[J')
-    print("basic-python-chatroom: server.py v0.03\n")
+    print("basic-python-chatroom: server.py v0.04\n")
     global PORT
     userin = input("Custom port? (y/n) ")
     if (userin == 'y'):
