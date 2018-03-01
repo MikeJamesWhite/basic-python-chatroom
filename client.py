@@ -4,7 +4,7 @@
 # A client which can connect to a server and receive responses until an exit
 # signal is sent. 
 #
-# v0.01
+# v0.02
 
 import socket
 import select
