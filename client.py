@@ -1,10 +1,10 @@
 # basic-python-chatroom: client.py
 # by Michael White (MikeJamesWhite on Github)
 #
-# A client which can connect to a server and receive responses until an exit
+# A client which can connect to a server, send messages and receive broadcasts until an exit
 # signal is sent. 
 #
-# v0.04
+# v0.05
 
 import socket
 import curses
@@ -20,10 +20,13 @@ begin_x = 0; begin_y = 2
 height = curses.LINES - 3
 width = curses.COLS - 1
 titleWin = curses.newwin(1, width, 0, 0)
-titleWin.addstr("basic-python-chatroom client v0.04 - by Mike White")
+titleWin.addstr("basic-python-chatroom client v0.05 - by Mike White")
 titleWin.refresh()
 chatWin = curses.newwin(height, width, begin_y, begin_x)
+chatPad = curses.newpad(500, curses.COLS - 1)
+chatPadPos = 0
 typeWin = curses.newwin(1, width, curses.LINES - 1, 0)
+maxChatPadPos = -height
 
 # default variables
 PORT = 5090
@@ -44,8 +47,13 @@ def onExit():
 
 
 def chatOutput(outStr):
-    chatWin.addstr(outStr + "\n")
-    chatWin.refresh()
+    global chatPadPos, maxChatPadPos
+    maxChatPadPos += 1
+    chatPad.addstr(outStr + "\n")
+    if chatPadPos <= maxChatPadPos:
+        chatPadPos += 1
+    chatPad.refresh(chatPadPos, 0, begin_y, begin_x, height, width)
+    titleWin.refresh()
     typeWin.refresh()
 
 def userInput(inStr):
@@ -57,7 +65,7 @@ def userInput(inStr):
     return s
 
 def main():
-    global HOST, PORT, receiving
+    global HOST, PORT, receiving, chatPadPos, height, width, begin_x, begin_y, maxChatPadPos
     alias = userInput("Enter your alias: ")
     connected = False
     while (not connected):
@@ -74,13 +82,35 @@ def main():
 
     receiverThread = Thread(target = broadcast_receiver, args = (serverSocket, ))
     receiverThread.start()
+
     userin = ""
-    while (userin[-6:] != "exit()"):
+    cmd = ''
+    while (True):
+        curses.cbreak()
+        curses.noecho()
+        typeWin.keypad(True)
+        cmd = typeWin.getch()
+        while (cmd != ord(' ')):
+            cmd = typeWin.getch()
+            if  (cmd == curses.KEY_DOWN):
+                if chatPadPos <= maxChatPadPos:
+                    chatPadPos += 1
+                    chatPad.refresh(chatPadPos, 0, begin_y, begin_x, height, width)
+            elif (cmd == curses.KEY_UP):
+                if chatPadPos > 0:
+                    chatPadPos -= 1
+                    chatPad.refresh(chatPadPos, 0, begin_y, begin_x, height, width)
+        curses.echo()
+        curses.nocbreak()
+        typeWin.keypad(False)
+
         userin = alias + "> " + userInput(alias + "> ")
         serverSocket.send(userin.encode())
-    receiving = False
-    onExit()
-    serverSocket.close()
+        if (userin[-6:] == "exit()"):
+            receiving = False
+            onExit()
+            serverSocket.close()
+            exit()
 
 if __name__ == '__main__':
     main()

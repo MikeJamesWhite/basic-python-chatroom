@@ -4,7 +4,7 @@
 # A server app which allows clients to connect, receives messages and rebroadcasts those
 # messages to all connected clients.
 #
-# v0.04
+# v0.05
 
 import socket
 from threading import Thread
@@ -43,15 +43,15 @@ def accept_clients(serverSocket):
         print("Server> Accepted new client from", addr)
 
 def main():
-    print('\033[H\033[J')
-    print("basic-python-chatroom: server.py v0.04\n")
+    print('\033[H\033[J') # clear terminal
+    print("basic-python-chatroom: server.py v0.05\n")
     global PORT
     userin = input("Custom port? (y/n) ")
     if (userin == 'y'):
         PORT = int(input("Enter port number: "))
     serverSocket = socket.socket()
     host = socket.gethostname()
-    serverSocket.bind((host, PORT))
+    serverSocket.bind(('', PORT))
     print("Server> Bound to address '", host, ": ", PORT, sep ='', end ="'\n")
     serverSocket.listen()
     print("Server> Initialised TCP listener.")
