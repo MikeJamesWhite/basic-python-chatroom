@@ -4,13 +4,13 @@
 # A server app which allows clients to connect, receives messages and rebroadcasts those
 # messages to all connected clients.
 #
-# v0.05
+# v0.06
 
 import socket
 from threading import Thread
 
 clients = [] # list of all current clients
-PORT = 5090
+PORT = 50500
 
 def broadcast_to_clients(message):
     for client in clients:
@@ -44,7 +44,7 @@ def accept_clients(serverSocket):
 
 def main():
     print('\033[H\033[J') # clear terminal
-    print("basic-python-chatroom: server.py v0.05\n")
+    print("basic-python-chatroom: server.py v0.06\n")
     global PORT
     userin = input("Custom port? (y/n) ")
     if (userin == 'y'):

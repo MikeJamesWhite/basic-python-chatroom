@@ -4,7 +4,7 @@
 # A client which can connect to a server, send messages and receive broadcasts until an exit
 # signal is sent. 
 #
-# v0.05
+# v0.06
 
 import socket
 import curses
@@ -20,7 +20,7 @@ begin_x = 0; begin_y = 2
 height = curses.LINES - 3
 width = curses.COLS - 1
 titleWin = curses.newwin(1, width, 0, 0)
-titleWin.addstr("basic-python-chatroom client v0.05 - by Mike White")
+titleWin.addstr("basic-python-chatroom client v0.06 - by Mike White")
 titleWin.refresh()
 chatWin = curses.newwin(height, width, begin_y, begin_x)
 chatPad = curses.newpad(500, curses.COLS - 1)
@@ -29,8 +29,8 @@ typeWin = curses.newwin(1, width, curses.LINES - 1, 0)
 maxChatPadPos = -height
 
 # default variables
-PORT = 5090
-HOST = "mike-zenbuntu"
+PORT = 50050
+HOST = "kingkong.zapto.org"
 receiving = True
 
 def broadcast_receiver(serverSocket):
