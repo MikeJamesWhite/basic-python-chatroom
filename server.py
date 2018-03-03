@@ -10,7 +10,7 @@ import socket
 from threading import Thread
 
 clients = [] # list of all current clients
-PORT = 50500
+PORT = 50050
 
 def broadcast_to_clients(message):
     for client in clients:
